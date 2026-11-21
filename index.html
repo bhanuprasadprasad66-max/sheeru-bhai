@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ff6b00" />
+  <title>Sheeru Bhai — Free Fire Esports App</title>
+  <script src="https://jsdelivr.net"></script>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: #09090b; color: #f4f4f5; }
+    .shell { max-width: 480px; margin: 0 auto; min-height: 100vh; background: #09090b; border-left: 1px solid #18181b; border-right: 1px solid #18181b; display: flex; flex-direction: column; position: relative; }
+    .topbar { position: sticky; top: 0; z-index: 20; background: #18181b; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #27272a; }
+    .ticker { background: #431407; color: #fde68a; font-size: 11px; padding: 6px 12px; text-align: center; border-bottom: 1px solid #9a3412; }
+    .wallet-pill { background: #27272a; color: #4ade80; border: 1px solid #16a34a; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; cursor: pointer; }
+    .body { flex: 1; padding: 14px 14px 90px; overflow-y: auto; }
+    .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: #18181b; border-top: 1px solid #27272a; display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px 0; z-index: 30; }
+    .nav-btn { background: transparent; border: none; color: #a1a1aa; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 16px; cursor: pointer; }
+    .nav-btn.active { color: #ff6b00; font-weight: bold; }
+    .nav-btn small { font-size: 10px; }
+    .hero { background: linear-gradient(135deg, #7c2d12 0%, #18181b 100%); padding: 16px; border-radius: 12px; border: 1px solid #ea580c; margin-bottom: 14px; }
+    .card { background: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 15px; margin-bottom: 14px; }
+    .match-card { background: #18181b; border: 1px solid #27272a; border-radius: 14px; overflow: hidden; margin-bottom: 14px; }
+    .banner-br { background: linear-gradient(135deg, #9a3412 0%, #c2410c 60%, #451a03 100%); padding: 14px; border-bottom: 2px solid #f97316; }
+    .banner-cs { background: linear-gradient(135deg, #1e3a8a 0%, #6d28d9 60%, #1e1b4b 100%); padding: 14px; border-bottom: 2px solid #8b5cf6; }
+    .banner-lw { background: linear-gradient(135deg, #065f46 0%, #047857 60%, #022c22 100%); padding: 14px; border-bottom: 2px solid #10b981; }
+    .chip { background: rgba(0,0,0,0.65); padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+    .rule-chip { background: #fbbf24; color: #000; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; }
+    .status-chip { background: #16a34a; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #09090b; padding: 10px; border-radius: 8px; text-align: center; font-size: 13px; margin: 10px 0; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: #d4d4d8; margin-bottom: 10px; background: #09090b; padding: 8px 10px; border-radius: 8px; }
+    .progress-track { height: 7px; background: #27272a; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+    .progress-fill { height: 100%; background: #ff6b00; }
+    .input, select, textarea { width: 100%; background: #09090b; border: 1px solid #3f3f46; color: #fff; padding: 11px 12px; border-radius: 8px; font-size: 14px; margin-bottom: 10px; }
+    .btn { width: 100%; background: #ff6b00; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; }
+    .btn:disabled { background: #3f3f46; cursor: not-allowed; }
+    .btn-wa { width: 100%; background: #25D366; color: #052e16; border: none; padding: 12px 14px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; }
+    .btn-green { background: #16a34a; color: #fff; border: none; padding: 9px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; }
+    .btn-red { background: #dc2626; color: #fff; border: none; padding: 9px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; }
+    .btn-gray { background: #27272a; color: #fff; border: none; padding: 9px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+    .pill-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; }
+    .pill { background: #18181b; color: #d4d4d8; border: 1px solid #27272a; padding: 7px 14px; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; }
+    .pill.active { background: #ff6b00; color: #fff; border-color: #ff6b00; font-weight: bold; }
+    .switch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .switch-btn { background: #27272a; color: #a1a1aa; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .switch-btn.active { background: #ff6b00; color: #fff; }
+    .pkg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .pkg-btn { background: #09090b; color: #fff; border: 1px solid #3f3f46; padding: 10px; border-radius: 8px; cursor: pointer; text-align: center; }
+    .pkg-btn.active { background: #431407; border-color: #ff6b00; color: #4ade80; }
+    .phonepe-box { background: #1e1035; border: 1px solid #7e22ce; padding: 14px; border-radius: 10px; text-align: center; margin-bottom: 10px; }
+    .toast { margin: 10px 14px 0; padding: 10px; border-radius: 8px; font-size: 13px; display: none; }
+    .toast.ok { display: block; background: #064e3b; color: #6ee7b7; }
+    .toast.err { display: block; background: #7f1d1d; color: #fca5a5; }
+    .warning-box { background: #451a03; border: 1px solid #d97706; color: #fde68a; padding: 12px; border-radius: 10px; margin-bottom: 14px; font-size: 13px; cursor: pointer; }
+    .room-box { background: #09090b; border: 1px dashed #ff6b00; padding: 10px; border-radius: 8px; font-size: 13px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 50; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .hidden { display: none !important; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .list-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #27272a; font-size: 13px; gap: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+  <header id="appHeader" class="topbar hidden">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <img id="headerAvatar" src="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid #ff6b00;display:none;" />
+      <div>
+        <strong id="headerTitle" style="color:#ff6b00;font-size:16px;">🔥 SHEERU BHAI</strong>
+        <div id="headerSub" style="font-size:11px;color:#a1a1aa;">Player</div>
+      </div>
+    </div>
+    <button type="button" id="headerWalletBtn" class="wallet-pill" onclick="switchTab('wallet')">₹0</button>
+    <button type="button" id="adminExitBtn" class="btn-red hidden" onclick="logoutAdmin()">Exit Admin</button>
+  </header>
+
+  <div id="tickerBar" class="ticker hidden">📢 Welcome to Sheeru Bhai Esports!</div>
+  <div id="toastBox" class="toast"></div>
+
+  <!-- AUTH VIEW -->
+  <main id="authView" class="body" style="display:flex;flex-direction:column;justify-content:center;">
+    <div class="hero" style="text-align:center;">
+      <span class="chip" style="background:#ea580c;">BR</span>
+      <span class="chip" style="background:#7c3aed;">CS 1v1/2v2/4v4</span>
+      <span class="chip" style="background:#059669;">LONE WOLF</span>
+      <h1 style="margin:10px 0 4px;font-size:30px;color:#ff6b00;">🔥 SHEERU BHAI</h1>
+      <p style="margin:0;font-size:13px;color:#e4e4e7;">Real Cash Free Fire Esports Tournament App</p>
+    </div>
+
+    <div id="playerAuthCard" class="card">
+      <div class="switch-grid">
+        <button type="button" id="tabSignupBtn" class="switch-btn active" onclick="setAuthMode('signup')">SIGN UP (MOBILE)</button>
+        <button type="button" id="tabLoginBtn" class="switch-btn" onclick="setAuthMode('login')">PLAYER LOGIN</button>
+      </div>
+      <form id="playerAuthForm">
+        <input id="authMobile" class="input" type="tel" placeholder="Enter 10-Digit Mobile Number (No OTP)" required />
+        <input id="authPassword" class="input" type="password" placeholder="Create / Enter Password (min 6 chars)" required />
+        <input id="authRef" class="input" type="text" placeholder="Referral Code (Optional)" />
+        <button id="authSubmitBtn" class="btn" type="submit">Create Account →</button>
+      </form>
+      <button type="button" id="openAdminBtn" class="btn-gray" style="width:100%;margin-top:14px;border:1px dashed #f59e0b;color:#f59e0b;font-weight:bold;">
+        🛡️ Real Admin Control Login
+      </button>
+    </div>
+
+    <div id="adminAuthCard" class="card hidden">
+      <h3 style="margin-top:0;color:#f59e0b;">🛡️ Real Supabase Admin Login</h3>
+      <form id="adminAuthForm">
+        <input id="adminIdInput" class="input" type="email" placeholder="Admin Email (admin@sheerubhai.com)" required />
+        <input id="adminPassInput" class="input" type="password" placeholder="Your Supabase Admin Password" required />
+        <button class="btn" type="submit">Sign In as Admin</button>
+        <button type="button" id="backToPlayerBtn" class="btn-gray" style="width:100%;margin-top:8px;">← Back to Player Login</button>
+      </form>
